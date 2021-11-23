@@ -1,6 +1,6 @@
 wandb/*
 Data/*
 results/*
-Tokenizer/*
+Tokenizer/*.csv
 __pycache__/*
 *.csv
