@@ -1,0 +1,6 @@
+wandb/*
+Data/*
+results/*
+Tokenizer/*
+__pycache__/*
+*.csv
