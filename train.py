@@ -49,7 +49,7 @@ def train(args):
     # -- Tokenizer Optimization
     print('\nOptimizing Tokenizer')
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-    unk_token_data = pd.read_csv('/opt/ml/project/Summarization/Tokenizer/extra_tokens.csv')
+    unk_token_data = pd.read_csv('/opt/ml/project/NewsSummarization/Tokenizer/extra_tokens.csv')
     tokenizer_opimizer = TokenizerOptimization(tokenizer, './Tokenizer', unk_token_data)
     tokenizer = tokenizer_opimizer.optimize()
     print('Length of Tokenizer : %d' %len(tokenizer))
@@ -84,21 +84,21 @@ def train(args):
     print('Model Type : {}'.format(type(model)))
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir = args.output_dir,                           # output directory
-        logging_dir = args.logging_dir,                         # logging directory
-        num_train_epochs = args.epochs,                         # epochs
-        save_steps = args.eval_steps,                           # model saving steps
-        eval_steps = args.eval_steps,                           # evaluation steps
-        logging_steps = args.eval_steps,                        # logging steps
-        evaluation_strategy = args.evaluation_strategy,         # evaluation strategy
-        per_device_train_batch_size = args.train_batch_size,    # train batch size
-        per_device_eval_batch_size = args.eval_batch_size,      # evaluation batch size
-        warmup_steps=args.warmup_steps,                         # warmup steps
-        weight_decay=args.weight_decay,                         # weight decay
-        learning_rate = args.learning_rate,                     # learning rate
-        gradient_accumulation_steps=1,                          # accumulation steps
+        output_dir = args.output_dir,                                   # output directory
+        logging_dir = args.logging_dir,                                 # logging directory
+        num_train_epochs = args.epochs,                                 # epochs
+        save_steps = args.eval_steps,                                   # model saving steps
+        eval_steps = args.eval_steps,                                   # evaluation steps
+        logging_steps = args.eval_steps,                                # logging steps
+        evaluation_strategy = args.evaluation_strategy,                 # evaluation strategy
+        per_device_train_batch_size = args.train_batch_size,            # train batch size
+        per_device_eval_batch_size = args.eval_batch_size,              # evaluation batch size
+        warmup_steps=args.warmup_steps,                                 # warmup steps
+        weight_decay=args.weight_decay,                                 # weight decay
+        learning_rate = args.learning_rate,                             # learning rate
+        gradient_accumulation_steps=args.gradient_accumulation_steps,   # accumulation steps
+        fp16=True if args.fp16 == 1 else False,                         # fp 16 flag
         predict_with_generate=True,
-        fp16=True,
         load_best_model_at_end=True
     )
 
@@ -153,7 +153,7 @@ def main(args):
         entity="sangha0411",
         project="News-summarization", 
         name=wandb_name,
-        group='t5-base')
+        group='t5-model')
 
     wandb.config.update(args)
     train(args)
@@ -182,15 +182,17 @@ if __name__ == '__main__':
     # -- Training
     parser.add_argument('--epochs', type=int, default=3, help='number of epochs to train (default: 3)')
     parser.add_argument('--learning_rate', type=float, default=5e-5, help='learning rate (default: 5e-5)')
-    parser.add_argument('--train_batch_size', type=int, default=16, help='train batch size (default: 8)')
-    parser.add_argument('--eval_batch_size', type=int, default=16, help='eval batch size (default: 8)')
+    parser.add_argument('--train_batch_size', type=int, default=16, help='train batch size (default: 16)')
+    parser.add_argument('--eval_batch_size', type=int, default=16, help='eval batch size (default: 16)')
     parser.add_argument('--eval_steps', type=int, default=2000, help='evaluation steps (default : 2000)')
     parser.add_argument('--warmup_steps', type=int, default=4000, help='number of warmup steps for learning rate scheduler (default: 4000)')
     parser.add_argument('--weight_decay', type=float, default=1e-2, help='streng1th of weight decay (default: 1e-2)')
+    parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='gradient_accumulation_steps of training (default: 1)')
+    parser.add_argument('--fp16', type=int, default=1, help='using fp16 (default: 1)')
     parser.add_argument('--evaluation_strategy', type=str, default='steps', help='evaluation strategy to adopt during training, steps or epoch (default: steps)')
 
     # -- Data
-    parser.add_argument('--max_input_len', type=int, default=1024, help='max length of tokenized document (default: 1024)')
+    parser.add_argument('--max_input_len', type=int, default=768, help='max length of tokenized document (default: 768)')
     parser.add_argument('--max_target_len', type=int, default=128, help='max length of tokenized summary (default: 128)')
     parser.add_argument('--max_doc_len', type=int, default=24000, help='max length of document (default: 24000)')
     parser.add_argument('--min_doc_len', type=int, default=1000, help='max length of document (default: 1000)')

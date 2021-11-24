@@ -9,7 +9,6 @@ from datasets import Dataset, DatasetDict
 
 
 class ArticleLoader :
-
     def __init__(self, text_dir_path, info_file_path, max_doc_len, min_doc_len) :
         self.text_dir_path = text_dir_path
         self.info_file_path = info_file_path
@@ -66,6 +65,10 @@ class ArticleLoader :
     def load_text(self, file_path) :
         f = open(file_path, 'r')
         text = f.read()
+
+        passages = text.split('\n')
+        passages = [p for p in passages if p != '']
+        text = ' '.join(passages[:5])
         return text
 
 
